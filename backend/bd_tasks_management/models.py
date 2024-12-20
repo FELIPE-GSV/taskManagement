@@ -12,6 +12,7 @@ class Task(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     due_date = models.DateTimeField(blank=True, null=True)
+    finish_at = models.DateTimeField(blank=True, null=True)
     completed = models.BooleanField(default=False)
 
     def __str__(self):

@@ -25,7 +25,8 @@ def get_user_by_token(request):
         'username': user.username,
         'email': user.email,
         'first_name': user.first_name,
-        'last_name': user.last_name
+        'last_name': user.last_name,
+        'id': user.id
     }
     return Response(user_data)
 
@@ -73,6 +74,23 @@ def get_task_by_id(request, identifier):
     return Response({"message": "Id nao encontrado."}, status=status.HTTP_404_NOT_FOUND)
 
 
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def put_task_by_id(request, identifier):
+    if request.method == 'PUT':
+        try:
+            update_task = Task.objects.get(pk=identifier)
+        except:
+            return Response({"Message": "Tarefa não encontrada"}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = TaskSerializer(update_task, data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer._errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_task_by_id(request, identifier):
@@ -81,6 +99,15 @@ def delete_task_by_id(request, identifier):
         task_to_delete.delete()
         return Response({"message": "Deletado com sucesso"}, status=status.HTTP_202_ACCEPTED)
     return Response({"message": "Id nao encontrado."}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_all_tasks(request):
+    if request.method == 'DELETE':
+        task_to_delete = Task.objects.all()
+        task_to_delete.delete()
+        return Response({"message": "Deletados com sucesso"}, status=status.HTTP_202_ACCEPTED)
 
 
 @api_view(['POST'])
